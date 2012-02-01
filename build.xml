@@ -1,0 +1,24 @@
+<project name="ecprac-driver-kamikaze" default="jar" basedir=".">
+	
+	<!-- 
+		Define your groupname, driverclass and ea here 
+	-->
+	<property name="GROUPNAME" value="Jacobs" />
+	<property name="DRIVER" value="ecprac.drivers.kamikaze.KamikazeDriver" />
+	<property name="EA" value="ecprac.drivers.kamikaze.KamikazeEA" />
+	
+	<!-- 
+			Define your run arguments here, for example value="-show"
+			This can also be done using:
+				> ant -Dargs=-show run
+	-->
+	<property name="args" value="" />
+	
+	<!-- 
+		Common ant tasks:
+		> ant run
+		> ant jar
+	-->
+	<import file="build-scripts.xml" />
+
+</project>

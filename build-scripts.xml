@@ -1,0 +1,93 @@
+<project name="ecprac-driver-scripts" default="run" basedir=".">
+	
+	<property name="base" value="./" />
+	<property name="target-dir" 			location="${base}/dist" />
+	<property name="run-dir" 				location="${base}/bin" />
+	<property name="tmp-dir" 				location="${base}/tmp" />
+	<property name="src-dir" 				location="${base}/src" />
+	<property name="config-dir" 			location="${base}/config" />
+	<property name="memory-dir" 			location="${base}/memory" />
+	
+	<condition property="isDefdriver"> 
+    	<equals arg1="${DRIVER}" arg2="ecprac.drivers.def.DefaultDriver" />
+	</condition> 
+		
+	<target name="init">
+		<mkdir dir="${tmp-dir}"  />
+		<mkdir dir="${run-dir}"  />
+		<mkdir dir="${target-dir}"  />
+	</target>
+
+	<target name="compile" depends="init" >
+	
+		<copy file="${target-dir}/ECPRAC-TORCS.jar" tofile="${run-dir}/ECPRAC-TORCS.jar" />
+		<copy file="${target-dir}/torcs.properties" tofile="${run-dir}/torcs.properties" />
+		<copy file="${target-dir}/TORCSLauncher.class" tofile="${run-dir}/TORCSLauncher.class" />
+		
+		<javac destdir="${run-dir}" debug="true" srcdir="${src-dir}" >
+			<classpath>
+					<pathelement path="${target-dir}/ECPRAC-TORCS.jar"/>	
+			</classpath>
+		</javac>
+	</target>
+		
+	<target name="compile-jar" depends="init" >
+
+			<javac destdir="${tmp-dir}" debug="true" srcdir="${src-dir}" >
+				<classpath>
+						<pathelement path="${target-dir}/ECPRAC-TORCS.jar"/>
+				</classpath>
+			</javac>
+		
+			<copy todir="${tmp-dir}">
+				<fileset dir="${src-dir}">
+					<include name="**/*.java" />
+				</fileset>
+			</copy>
+		
+			<copy todir="${tmp-dir}/memory">
+				<fileset dir="${memory-dir}">
+					<include name="**/*.mem" />
+				</fileset>
+			</copy>
+
+	</target>
+	
+	
+	<target name="runjava" depends="compile">
+		<java fork="true" classname="${EA}">
+			<classpath>
+				<pathelement path="${run-dir}/ECPRAC-TORCS.jar"/>
+				<pathelement path="${run-dir}"/>
+			</classpath>
+			<arg value="${args}" />
+		</java>
+	</target>
+	
+	<target name="run" depends="runjava,clean" description="Run" />
+	
+	<target name="defcheck" if="isDefdriver">
+		<echo>Please change the package and classname of your driver into:</echo>
+		<echo>ecprac.drivers.YOURGROUP.YOURDRIVER.java</echo>
+	</target>
+	
+	<target name="cjar" depends="compile-jar">
+		<jar destfile="${target-dir}/${GROUPNAME}.jar" basedir="${tmp-dir}" includes="**/*.*">
+			<manifest> 
+				<attribute name="Created-By" value="${GROUPNAME}" /> 
+				<attribute name="Driver" value="${DRIVER}" />
+				<attribute name="Class-Path" value=". ECPRAC-TORCS.jar" />
+				<attribute name="Main-Class" value="${EA}" />
+			</manifest>
+		</jar>
+		
+	</target>
+
+	<target name="jar" depends="cjar,clean, defcheck" description="Build a Jar file" />
+	
+	<target name="clean" >
+		<delete dir="${tmp-dir}" />
+	</target>
+
+
+</project>
